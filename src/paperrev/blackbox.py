@@ -149,6 +149,7 @@ def capture_api(wb: Workbench, case_file: str | Path, *, origin: str, endpoint_p
                    subject={"capture_id": capture_id, "cases_sha256": case_hash},
                    result={"reference_file": result["reference_file"],
                            "reference_sha256": result["reference_sha256"],
+                           "capture_meta_sha256": sha256(canonical(result)),
                            "observed": completed, "expected": len(rows), "failure": failure},
                    coverage=scope, limitations=result["limitations"])
     return {**result, "evidence_id": ev["evidence_id"]}

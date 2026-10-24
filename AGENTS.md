@@ -38,3 +38,8 @@ Never run API/GPU/model-generation calls without explicit user authorization, do
 ## Observable model target (REA website/app route)
 
 Use `docs/BLACKBOX_WORKFLOW.md` to capture authorized real model output, generate one-feature probes, derive an independent candidate from a source-grounded plan plus observations, and compare via no-network Docker. Preserve every Evidence link, data hash and incomplete-coverage reason. A callable black-box model is not the original private training source, and program-generated contrast inputs are not observed until an actual model returns outputs.
+
+
+## Source-bound controlled contrasts (v0.4)
+
+Once `intervene` generates probes and both baseline/probe outputs have been actually captured, use `analyze-interventions` or MCP `analyze_interventions`. Require cryptographically bound endpoint metadata, stable endpoint path/response projection, exact input file digests and intervention parent IDs. A finite counterexample is evidence only about tested inputs, not proof of an underlying model mechanism. Missing cases remain unknown. Legacy captures without metadata digest require recapture.

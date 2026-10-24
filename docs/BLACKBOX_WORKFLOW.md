@@ -113,3 +113,49 @@ The comparison authenticates the actual reference capture file and case file, re
 StartLux-Decision makes a suitable first experiment because the released inference service exposes confidence and reasoning controls. Its **official inference source already exists**; PaperRev's generative reconstruction should target *missing mechanism/training hypotheses* rather than needlessly regenerating that public serving engine.
 
 All remote actions and candidate Docker execution require explicit opt-in. No external model, paid API, GPU, browser, or app account is activated by importing this library.
+
+## Metamorphic differentiation: from a probe to a falsifiable mechanism hypothesis (v0.4)
+
+One-variable inputs alone are not evidence of how a model responds. After observing **both** the original JSONL and the generated probe JSONL at the **same API origin/path/output pointer**, run a finite relation audit. This is analogous to REA's static-vs-runtime corroboration: the two observation files and the exact intervention plan are all independently authenticated before the comparison is allowed.
+
+Extend the same `interventions.json` with bounded `checks`:
+
+```json
+{
+  "schema": "paperrev/interventions-v1",
+  "changes": [
+    {"id": "plus-day", "path": "/days", "op": "add", "value": 1}
+  ],
+  "checks": [
+    {"id": "monotonic-delay", "intervention_id": "plus-day", "output_pointer": "/late_probability", "relation": "increase"},
+    {"id": "unchanged-label", "intervention_id": "plus-day", "output_pointer": "/category", "relation": "same"}
+  ]
+}
+```
+
+Supported relations are `same`, `different` (nested JSON, numeric absolute tolerance), `increase`, `decrease`, and `shift` (scalar numeric difference equals declared `expected_delta`, within `tolerance`). The latter three require finite numbers. All comparisons are finite-sample observations, not universal theorems.
+
+```bash
+# The first response returns BASE_EVIDENCE_ID from observe-api.
+paperrev observe-api --workspace runs/reverse --cases model_cases.jsonl \
+  --origin http://127.0.0.1:8090 --path /v1/systemone \
+  --output-pointer /answers --execute
+
+# `intervene` returns PLAN_EVIDENCE_ID and PROBE_CASES_JSONL.
+paperrev intervene --workspace runs/reverse \
+  --cases model_cases.jsonl --spec interventions.json
+
+# Capture the *same* endpoint's responses to the generated inputs.
+paperrev observe-api --workspace runs/reverse --cases PROBE_CASES_JSONL \
+  --origin http://127.0.0.1:8090 --path /v1/systemone \
+  --output-pointer /answers --limit 200 --execute
+
+paperrev analyze-interventions --workspace runs/reverse \
+  --baseline BASE_EVIDENCE_ID --probes PROBE_EVIDENCE_ID \
+  --plan-evidence PLAN_EVIDENCE_ID --cases model_cases.jsonl \
+  --probe-cases PROBE_CASES_JSONL --spec interventions.json
+```
+
+The analyzer checks exact input hashes, the generated probe-plan hash, parent IDs, input-path isolation, original and perturbed API output hashes, **hash-bound endpoint metadata**, and equal output projection. It returns per-check `supported_on_pairs`, `counterexample_observed`, or `unknown`, including paired/missing case counts and finite witness IDs. A partial capture can reveal a real contrary example, but **cannot establish all-case support**. Results are linked to the three parent Evidence IDs and included in the exported Evidence bundle.
+
+Legacy v0.3 API capture metadata lacked a digest in its immutable Evidence record, so those captures must be repeated before v0.4 controlled contrast analysis; trusting an unbound endpoint label would weaken the conclusions. This tool still cannot identify the original model's hidden weights, causal internal computations, or historical training recipe. Stochastic outputs need repeated controlled runs and source-version fingerprints before attributing behavioral shifts to an intervention.

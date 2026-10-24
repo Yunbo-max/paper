@@ -13,6 +13,7 @@ from .replicate import ingest_pdf, register_plan, create_candidate
 from .reproduce import candidate_manifest, compare_outputs, run_tests, verify_claims
 from .workbench import Workbench, read_json
 from .blackbox import capture_api, make_interventions, replay_candidate as run_replay, check_reconstruction as check_replay
+from .contrast import analyze_contrasts
 
 
 def build_server():
@@ -74,6 +75,20 @@ def build_server():
     def generate_interventions(workspace: str, cases_jsonl: str, spec_json: str) -> dict[str, Any]:
         """Generate one-input-feature contrast cases (not observed results)."""
         return make_interventions(Workbench(workspace), cases_jsonl, spec_json)
+
+    @server.tool()
+    def analyze_interventions(workspace: str, baseline_evidence_id: str,
+                              probe_evidence_id: str, plan_evidence_id: str,
+                              base_cases_path: str, probe_cases_path: str,
+                              spec_path: str) -> dict[str, Any]:
+        """Compare source-bound, single-variable model interventions using finite typed relations."""
+        return analyze_contrasts(Workbench(workspace),
+                                 baseline_evidence_id=baseline_evidence_id,
+                                 intervention_evidence_id=probe_evidence_id,
+                                 intervention_plan_evidence_id=plan_evidence_id,
+                                 base_cases_path=base_cases_path,
+                                 probe_cases_path=probe_cases_path,
+                                 spec_path=spec_path)
 
     @server.tool()
     def replay_candidate(workspace: str, candidate_id: str, cases_jsonl: str,

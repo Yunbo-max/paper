@@ -2,7 +2,7 @@
 
 **REA-style investigation and reconstruction for ML papers with incomplete releases.** PaperRev is an agent-facing engine that turns source-bound paper facts into a structured algorithm plan, generates independently runnable code, and checks that code against scoped obligations. It deliberately distinguishes a useful independent reproduction from recovery of unpublished original training code.
 
-**New in v0.3:** This is now a *generic paper-reproduction engine*, not a StartLux-only benchmark script. The existing StartLux prototype remains available as `paperrev-startlux`; StartLux is the first real case for the new engine.
+**New in v0.4:** This is now a *generic paper-reproduction engine*, not a StartLux-only benchmark script. The existing StartLux prototype remains available as `paperrev-startlux`; StartLux is the first real case for the new engine.
 
 | REA principle | PaperRev implementation |
 | --- | --- |
@@ -47,10 +47,12 @@ All target API calls and LLM calls require opt-in; remote targets require HTTPS 
 
 See [black-box model reconstruction and limits](docs/BLACKBOX_WORKFLOW.md).
 
+**New: controlled differential analysis.** Observe the target on baseline and perturbed cases, then use `paperrev analyze-interventions` (also MCP `analyze_interventions`) to authenticate both captures, verify one-field input changes and test finite metamorphic predictions. Results include counterexample IDs, incomplete coverage and Evidence links. See [contrast research design](docs/CONTRAST_RESEARCH.md).
+
 ## Install
 
 ```bash
-# Clone your repo, then select the development branch
+# Clone the current main branch
  git clone https://github.com/Yunbo-max/paper.git
  cd paper
 
