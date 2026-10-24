@@ -1,0 +1,13 @@
+{
+  "files": [
+    {
+      "path": "src/reproduction.py",
+      "content": "def predict(xs):\n    return [2 * x for x in xs]\n"
+    },
+    {
+      "path": "tests/test_reproduction.py",
+      "content": "import unittest\nfrom reproduction import predict\n\nclass TestToy(unittest.TestCase):\n    def test_known_values(self):\n        self.assertEqual(predict([1, 2, 3]), [2, 4, 6])\n    def test_empty(self):\n        self.assertEqual(predict([]), [])\n"
+    }
+  ],
+  "assumptions": ["Inputs are integers."]
+}

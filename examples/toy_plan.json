@@ -1,0 +1,22 @@
+{
+  "schema": "paperrev/plan-v2",
+  "claims": [
+    {
+      "id": "T-001",
+      "statement": "Each input element is multiplied by two.",
+      "page": 1,
+      "quote": "Every element is multiplied by two."
+    }
+  ],
+  "modules": [
+    {
+      "name": "elementwise_transform",
+      "purpose": "Double each element of the input vector.",
+      "claim_ids": ["T-001"],
+      "inputs": "Sequence of integers",
+      "outputs": "Sequence of integers",
+      "algorithm": "return [2*x for x in inputs]"
+    }
+  ],
+  "unknowns": []
+}

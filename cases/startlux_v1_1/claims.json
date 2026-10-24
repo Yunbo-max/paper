@@ -1,0 +1,119 @@
+{
+  "schema": "paperrev/case-v1",
+  "case_id": "startlux-decision-v1.1-autothink",
+  "title": "StartLux-Decision v1.1 AutoThink: released-weights inference and mechanism reconstruction",
+  "paper": {
+    "title": "StartLux-Decision: AutoThink Decision Models with Reinforcement Learning for Calibrated Deliberative Decisions",
+    "arxiv_id": "2610.17309",
+    "url": "https://arxiv.org/abs/2610.17309"
+  },
+  "sources": {
+    "official_inference": "https://github.com/StartLuxLabs/StartLux-Decision",
+    "weights_27b": "https://huggingface.co/startlux-models/StartLux-Decision-v1.1-27B-AutoThink",
+    "weights_4b": "https://huggingface.co/startlux-models/StartLux-Decision-v1.1-4B-AutoThink",
+    "api_spec": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/docs/api.md",
+    "inference_pipeline": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/startlux_decide/pipeline.py",
+    "model_config": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/startlux_decide/modelcfg.py",
+    "reported_results": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/README.md"
+  },
+  "claims": [
+    {
+      "id": "SL-001",
+      "statement": "A readout returns a probability over each explicitly listed option; option-letter logits are temperature normalized.",
+      "source": {
+        "url": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/startlux_decide/readout.py",
+        "location": "probabilities()"
+      },
+      "verify_with": "official-inference-code-readout-unit-tests",
+      "level": "source-declared"
+    },
+    {
+      "id": "SL-002",
+      "statement": "AutoThink generates a thought when first-pass top probability is below the gate, with modes never/always/auto.",
+      "source": {
+        "url": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/startlux_decide/pipeline.py",
+        "location": "Decider._run()"
+      },
+      "verify_with": "paired-always-think-capture-and-live-auto-check",
+      "level": "source-declared"
+    },
+    {
+      "id": "SL-003",
+      "statement": "The final decision combines first and post-thought probabilities using a configurable mixture.",
+      "source": {
+        "url": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/startlux_decide/readout.py",
+        "location": "mixture()"
+      },
+      "verify_with": "numerical-output-parity",
+      "level": "source-declared"
+    },
+    {
+      "id": "SL-004",
+      "statement": "The released 27B checkpoint is described as a Qwen3.5 architecture AutoThink model.",
+      "source": {
+        "url": "https://huggingface.co/startlux-models/StartLux-Decision-v1.1-27B-AutoThink",
+        "location": "config and model metadata"
+      },
+      "verify_with": "pinned-hf-config-and-tensor-inventory",
+      "level": "source-declared"
+    },
+    {
+      "id": "SL-005",
+      "statement": "RLCD² is reported to optimize the improvement of proper scores after deliberation, penalized by excess thought length.",
+      "source": {
+        "url": "https://arxiv.org/abs/2610.17309",
+        "location": "training-method section"
+      },
+      "verify_with": "independent-small-scale-training-experiment",
+      "level": "paper-reported"
+    },
+    {
+      "id": "SL-006",
+      "statement": "Published decision benchmark scores are reference results, not independently reproduced measurements in this project.",
+      "source": {
+        "url": "https://github.com/StartLuxLabs/StartLux-Decision/blob/main/README.md",
+        "location": "Models and benchmarks"
+      },
+      "verify_with": "pinned-public-benchmark-reproduction",
+      "level": "paper-reported"
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U-001",
+      "question": "What exact examples and preprocessing produced the v1.1 released training mixtures?",
+      "blocking": [
+        "full-original-training-reproduction"
+      ]
+    },
+    {
+      "id": "U-002",
+      "question": "Are complete RLCD² training scripts, intermediate checkpoints and optimizer state publicly available?",
+      "blocking": [
+        "exact-training-trajectory-identification"
+      ]
+    },
+    {
+      "id": "U-003",
+      "question": "Can existing released weights identify which stage caused particular parameter updates?",
+      "blocking": [
+        "mechanistic-attribution"
+      ]
+    },
+    {
+      "id": "U-004",
+      "question": "How faithfully do offline gate simulations approximate live auto gating under stochastic sampling?",
+      "blocking": [
+        "causal-policy-comparison"
+      ]
+    },
+    {
+      "id": "U-005",
+      "question": "Does the selected gold dataset contain independent, sufficiently hard problems requiring deliberation?",
+      "blocking": [
+        "scientific-claim-validation"
+      ]
+    }
+  ],
+  "license_note": "The official inference source is Apache-2.0; the released StartLux weights are CC BY-NC 4.0. Respect both licenses."
+}
