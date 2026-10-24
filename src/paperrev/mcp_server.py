@@ -14,6 +14,7 @@ from .reproduce import candidate_manifest, compare_outputs, run_tests, verify_cl
 from .workbench import Workbench, read_json
 from .blackbox import capture_api, make_interventions, replay_candidate as run_replay, check_reconstruction as check_replay
 from .contrast import analyze_contrasts
+from .active import select_probes, evaluate_selection
 
 
 def build_server():
@@ -89,6 +90,24 @@ def build_server():
                                  base_cases_path=base_cases_path,
                                  probe_cases_path=probe_cases_path,
                                  spec_path=spec_path)
+
+    @server.tool()
+    def select_active_probes(workspace: str, pool_cases_path: str,
+                             candidate_replay_evidence_ids: list[str], budget: int = 5,
+                             min_distance: float = 0.05, max_per_parent: int = 1) -> dict[str, Any]:
+        """Select new diagnostic requests using previously sandboxed candidate behavior; never query an API."""
+        return select_probes(Workbench(workspace), pool_cases_path, candidate_replay_evidence_ids,
+                             budget=budget, min_distance=min_distance, max_per_parent=max_per_parent)
+
+    @server.tool()
+    def evaluate_active_probes(workspace: str, pool_cases_path: str,
+                               selection_evidence_id: str, observation_evidence_id: str,
+                               atol: float = 1e-6, rtol: float = 1e-5) -> dict[str, Any]:
+        """Audit a genuine target capture and finite version-space compatibility."""
+        return evaluate_selection(Workbench(workspace), pool_file=pool_cases_path,
+                                  selection_evidence_id=selection_evidence_id,
+                                  observation_evidence_id=observation_evidence_id,
+                                  atol=atol, rtol=rtol)
 
     @server.tool()
     def replay_candidate(workspace: str, candidate_id: str, cases_jsonl: str,

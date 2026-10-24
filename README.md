@@ -2,7 +2,7 @@
 
 **REA-style investigation and reconstruction for ML papers with incomplete releases.** PaperRev is an agent-facing engine that turns source-bound paper facts into a structured algorithm plan, generates independently runnable code, and checks that code against scoped obligations. It deliberately distinguishes a useful independent reproduction from recovery of unpublished original training code.
 
-**New in v0.4:** This is now a *generic paper-reproduction engine*, not a StartLux-only benchmark script. The existing StartLux prototype remains available as `paperrev-startlux`; StartLux is the first real case for the new engine.
+**Current version v0.5:** This is now a *generic paper-reproduction engine*, not a StartLux-only benchmark script. The existing StartLux prototype remains available as `paperrev-startlux`; StartLux is the first real case for the new engine.
 
 | REA principle | PaperRev implementation |
 | --- | --- |
@@ -49,6 +49,24 @@ See [black-box model reconstruction and limits](docs/BLACKBOX_WORKFLOW.md).
 
 **New: controlled differential analysis.** Observe the target on baseline and perturbed cases, then use `paperrev analyze-interventions` (also MCP `analyze_interventions`) to authenticate both captures, verify one-field input changes and test finite metamorphic predictions. Results include counterexample IDs, incomplete coverage and Evidence links. See [contrast research design](docs/CONTRAST_RESEARCH.md).
 
+## Active black-box probing (v0.5)
+
+After replaying two or more distinct candidate implementations in offline Docker on **the same JSONL pool**, use `paperrev active-select` to select inputs on which the candidates disagree. This uses the known Query-by-Committee idea, not a claim of novel information-theoretic optimization.
+
+~~~bash
+paperrev active-select --workspace runs/audit --pool pool.jsonl \
+  --candidate-run ev_CANDIDATE_A --candidate-run ev_CANDIDATE_B --budget 5
+
+# Only a separate authorized command can query the original model:
+paperrev observe-api --workspace runs/audit --cases SELECTED_CASES_PATH \
+  --origin http://127.0.0.1:8090 --path /v1/systemone \
+  --output-pointer /answers --execute
+
+paperrev active-evaluate --workspace runs/audit --pool pool.jsonl \
+  --selection ev_SELECTION --observation ev_TARGET_CAPTURE
+~~~
+
+`active-select` makes **zero target API calls**. Candidate Docker replay files, chosen test IDs and captured responses are SHA256-bound to Evidence. Partial capture never establishes compatibility; if all candidates agree the system reports no discriminating questions, **not** proof that they are correct. See [Active Mechanism Probing](docs/ACTIVE_PROBING.md).
 ## Install
 
 ```bash

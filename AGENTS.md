@@ -1,4 +1,4 @@
-# PaperRev Research Agent Contract (v0.2)
+# PaperRev Research Agent Contract (v0.5)
 
 **Goal:** build inspectable **independent reproductions** of incompletely released scientific papers, following REA-style evidence identity, incomplete-coverage semantics, unknown registries and verified reconstruction obligations.
 
@@ -43,3 +43,9 @@ Use `docs/BLACKBOX_WORKFLOW.md` to capture authorized real model output, generat
 ## Source-bound controlled contrasts (v0.4)
 
 Once `intervene` generates probes and both baseline/probe outputs have been actually captured, use `analyze-interventions` or MCP `analyze_interventions`. Require cryptographically bound endpoint metadata, stable endpoint path/response projection, exact input file digests and intervention parent IDs. A finite counterexample is evidence only about tested inputs, not proof of an underlying model mechanism. Missing cases remain unknown. Legacy captures without metadata digest require recapture.
+
+## Active candidate disagreement and inquiry (v0.5)
+
+Once 2–16 distinct candidates have been replayed against a common frozen input pool in Docker, run `active-select` / MCP `select_active_probes` with their authenticated `candidate-behavior` Evidence IDs. The greedy Query-by-Committee heuristic prefers novel candidate-pair distinctions, discounts redundant questions, accounts for declared costs and respects per-parent caps.
+
+Only separately authorized `observe-api --execute` calls may query the original model with the chosen JSONL. Then run `active-evaluate` / `evaluate_active_probes` using the selection Evidence and target observation Evidence. Partial target coverage yields INCONCLUSIVE for otherwise matching candidates. If candidates all agree, use independent random/holdout controls. No finite probe can uniquely recover original training data/optimizer. See docs/ACTIVE_PROBING.md.
