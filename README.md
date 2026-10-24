@@ -23,6 +23,7 @@ Requires Python 3.10+; the standard command set has **zero mandatory third-party
 ~~~bash
 git clone https://github.com/Yunbo-max/paper.git
 cd paper
+git switch feat/evidence-first-startlux-20261024
 python -m pip install -e .
 python -m unittest discover -s tests -v
 
