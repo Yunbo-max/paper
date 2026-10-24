@@ -2,7 +2,7 @@
 name: paper-reverse-engineering
 description: REA-style evidence-first investigation of incompletely released research papers, from source artifacts through independent code candidate, controlled execution, and scoped claim verification.
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Paper Reverse Engineering (PaperRev v0.2)
@@ -33,11 +33,32 @@ Keep a hypothesis branch for every materially ambiguous detail (normalization, d
 6. Use `verify_reconstruction` or `paperrev verify` with real, cited Evidence IDs. Include unknown blockers and incomplete sources. Report pass/fail/unknown for **individual finite obligations**, never announce the whole paper replicated from one test.
 7. Export an authenticated Evidence bundle to support independent review and later runs. The export omits source PDF and code bytes; retain those separately with hashes.
 
+## REA-style observable target workflow
+
+If the paper has a callable inference model, treat the model like REA treats a
+closed-source website/App: **observe actual behavior before reconstructing
+code**. First freeze a JSONL case set and endpoint. Only when the user has
+authorized the action, call \`observe_api\` or \`paperrev observe-api\`. Keep
+the resulting Evidence ID, input digest, output digest, version drift warning,
+and incomplete observations.
+
+Use \`generate_interventions\` / \`paperrev intervene\` to change one input
+feature at a time, then obtain actual outputs for those contrasts separately.
+Use \`generate-behavior\` to pass a bounded subset of authentic observations
+to an authorized coding model, producing independent Python source with
+\`src/reproduction.py: predict(input)\`. Use \`replay_candidate\` and
+\`check_reconstruction\` to compare in read-only, no-network Docker under
+fixed inputs. Never call a generated probe an observation or a finite match
+a recovery of proprietary training code.
+
+See \`docs/BLACKBOX_WORKFLOW.md\`; current scope is stateless JSON POST endpoints,
+not web crawling, browser session capture, CDP or HAR stateful cloning.
+
 ## Tool names
 
-MCP: `create_session`, `open_paper`, `record_plan`, `generate_code`, `inspect_candidate`, `run_candidate_tests`, `compare_behavior`, `verify_reconstruction`, `record_unknown`, `update_unknown`, `inspect_evidence`, `export_evidence_bundle`.
+MCP: `observe_api`, `generate_interventions`, `replay_candidate`, `check_reconstruction`, `create_session`, `open_paper`, `record_plan`, `generate_code`, `inspect_candidate`, `run_candidate_tests`, `compare_behavior`, `verify_reconstruction`, `record_unknown`, `update_unknown`, `inspect_evidence`, `export_evidence_bundle`.
 
-CLI: `paperrev init`, `open-paper`, `plan`, `register-plan`, `generate`, `test`, `compare`, `verify`, `record-unknown`, `resolve-unknown`, `inspect`, `export`, `verify-bundle`, `reconstruct`.
+CLI: `paperrev observe-api`, `intervene`, `generate-behavior`, `replay`, `check-reconstruction`, `paperrev init`, `open-paper`, `plan`, `register-plan`, `generate`, `test`, `compare`, `verify`, `record-unknown`, `resolve-unknown`, `inspect`, `export`, `verify-bundle`, `reconstruct`.
 
 MCP functions are scoped adapters; optional direct plan/generation LLM calls live in the CLI. Do not invent unadvertised MCP tools. Check the actual connected server tool list and installed package versions.
 

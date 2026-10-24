@@ -2,7 +2,7 @@
 
 **REA-style investigation and reconstruction for ML papers with incomplete releases.** PaperRev is an agent-facing engine that turns source-bound paper facts into a structured algorithm plan, generates independently runnable code, and checks that code against scoped obligations. It deliberately distinguishes a useful independent reproduction from recovery of unpublished original training code.
 
-**New in v0.2:** This is now a *generic paper-reproduction engine*, not a StartLux-only benchmark script. The existing StartLux prototype remains available as `paperrev-startlux`; StartLux is the first real case for the new engine.
+**New in v0.3:** This is now a *generic paper-reproduction engine*, not a StartLux-only benchmark script. The existing StartLux prototype remains available as `paperrev-startlux`; StartLux is the first real case for the new engine.
 
 | REA principle | PaperRev implementation |
 | --- | --- |
@@ -15,13 +15,44 @@
 | Comparison | Sample-ID-aligned nested JSONL behavioral checks with numeric tolerance and coverage |
 | Verification | Explicit bounded claim obligations; unknowns remain unknown |
 
+
+## Model/API black-box reconstruction (REA website/app workflow)
+
+PaperRev now observes **actual inference inputs and outputs** rather than relying only on paper prose. Like REA's website/app workflow, it collects bounded evidence, constructs one-feature interventions, proposes independent reconstruction code, replays that code and compares behavior on the **same cases**.
+
+The source is a real model/API endpoint; its undisclosed training pipeline is not automatically reconstructed.
+
+~~~bash
+paperrev init --workspace runs/audit --title "Black-box reconstruction"
+paperrev observe-api --workspace runs/audit --cases examples/blackbox_cases.jsonl \
+  --origin http://127.0.0.1:8090 --path /v1/systemone \
+  --output-pointer /answers --execute
+
+paperrev intervene --workspace runs/audit \
+  --cases examples/blackbox_cases.jsonl --spec examples/interventions.json
+
+# After paperrev open-paper and register-plan have produced PLAN_SHA:
+paperrev generate-behavior --workspace runs/audit --plan-sha PLAN_SHA \
+  --observation OBSERVATION_EVIDENCE_ID --cases examples/blackbox_cases.jsonl \
+  --label replica-1 --model CODING_MODEL \
+  --endpoint http://127.0.0.1:8000 --execute-llm
+
+paperrev check-reconstruction --workspace runs/audit \
+  --observation OBSERVATION_EVIDENCE_ID --candidate CANDIDATE_ID \
+  --cases examples/blackbox_cases.jsonl \
+  --image python:3.12-slim --execute-tests
+~~~
+
+All target API calls and LLM calls require opt-in; remote targets require HTTPS and explicit authorization. The generated code runs only inside the declared offline Docker container. A finite matching result does not establish the original private source, training method, or general model equivalence.
+
+See [black-box model reconstruction and limits](docs/BLACKBOX_WORKFLOW.md).
+
 ## Install
 
 ```bash
 # Clone your repo, then select the development branch
  git clone https://github.com/Yunbo-max/paper.git
  cd paper
- git switch feat/evidence-first-startlux-20261024
 
 python -m pip install -e '.[all]'
 python -m unittest discover -s tests -v
@@ -89,7 +120,7 @@ The reference and candidate files use one JSON object per line: `{"id": "case1",
 - **Candidate code** — syntactically valid generated Python; never run during generation.
 - **Observed test** — a recorded Docker execution; not proof of the paper's reported result.
 - **Observed comparison** — matching output JSONL and declared coverage, subject to reference provenance.
-- **Scientific reproduction** — requires validated reference authority, same evaluation conditions and independent experiments; **not automatically claimed by v0.2**.
+- **Scientific reproduction** — requires validated reference authority, same evaluation conditions and independent experiments; **not automatically claimed by v0.3**.
 
 The tool cannot uniquely infer original optimizer histories, proprietary datasets, or unpublished code from final weights alone. Code and source records are MIT; original paper/code/weights remain under their respective authors' licenses. No StartLux weights or protected data are vendored.
 

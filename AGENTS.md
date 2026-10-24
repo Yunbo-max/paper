@@ -34,3 +34,7 @@ Never run API/GPU/model-generation calls without explicit user authorization, do
 
 - source-audited; plan-produced; candidate-syntax-checked; candidate-unit-test-passed/failed; behavior-compared-partial/complete; finite-claim-check-passed/failed/unknown; paper-reproduction-not-established.
 - Always name observed commands and stored artifacts. Never claim source recovered, historical optimizer recovered or paper reproduced solely from a generated repository.
+
+## Observable model target (REA website/app route)
+
+Use `docs/BLACKBOX_WORKFLOW.md` to capture authorized real model output, generate one-feature probes, derive an independent candidate from a source-grounded plan plus observations, and compare via no-network Docker. Preserve every Evidence link, data hash and incomplete-coverage reason. A callable black-box model is not the original private training source, and program-generated contrast inputs are not observed until an actual model returns outputs.

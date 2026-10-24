@@ -1,0 +1,11 @@
+{
+  "schema": "paperrev/interventions-v1",
+  "changes": [
+    {
+      "id": "change-state",
+      "path": "/state",
+      "op": "replace",
+      "value": "Shipment arrived after 100 days"
+    }
+  ]
+}

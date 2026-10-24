@@ -10,6 +10,7 @@ from .workbench import Workbench, read_json
 from .replicate import (ModelClient, ingest_pdf, propose_plan, register_plan,
                         create_candidate, generate_candidate)
 from .reproduce import compare_outputs, run_tests, verify_claims
+from .blackbox import capture_api, make_interventions, replay_candidate, check_reconstruction, generate_from_observation
 
 
 def parser() -> argparse.ArgumentParser:
@@ -50,6 +51,50 @@ def parser() -> argparse.ArgumentParser:
     x.add_argument("--timeout", type=int, default=120)
     x.add_argument("--memory-mb", type=int, default=1024)
     x.add_argument("--cpus", type=float, default=2.0)
+    x.add_argument("--execute-tests", action="store_true")
+    x = p.add_parser("generate-behavior", help="Generate independent code from paper spec and real captured I/O")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--plan-sha", required=True)
+    x.add_argument("--observation", required=True)
+    x.add_argument("--cases", required=True)
+    x.add_argument("--label", required=True)
+    x.add_argument("--model", required=True)
+    x.add_argument("--endpoint", default="http://127.0.0.1:8000")
+    x.add_argument("--allow-remote", action="store_true")
+    x.add_argument("--execute-llm", action="store_true")
+    x.add_argument("--max-pairs", type=int, default=12)
+    x = p.add_parser("observe-api", help="Observe real JSON model output under a declared origin")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--cases", required=True, help="JSONL inputs with stable id and input")
+    x.add_argument("--origin", default="http://127.0.0.1:8090")
+    x.add_argument("--path", default="/v1/systemone")
+    x.add_argument("--output-pointer", default="")
+    x.add_argument("--limit", type=int, default=25)
+    x.add_argument("--timeout", type=int, default=120)
+    x.add_argument("--allow-remote", action="store_true")
+    x.add_argument("--execute", action="store_true", help="authorize external HTTP requests")
+    x = p.add_parser("intervene", help="Generate bounded one-feature counterfactual inputs")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--cases", required=True)
+    x.add_argument("--spec", required=True)
+    x = p.add_parser("replay", help="Replay code on frozen API inputs in no-network Docker")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--cases", required=True)
+    x.add_argument("--candidate", required=True)
+    x.add_argument("--image", required=True)
+    x.add_argument("--module", default="reproduction")
+    x.add_argument("--function", default="predict")
+    x.add_argument("--timeout", type=int, default=120)
+    x.add_argument("--memory-mb", type=int, default=1024)
+    x.add_argument("--execute-tests", action="store_true")
+    x = p.add_parser("check-reconstruction", help="Compare authenticated API capture to Docker replay")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--observation", required=True)
+    x.add_argument("--candidate", required=True)
+    x.add_argument("--cases", required=True)
+    x.add_argument("--image", required=True)
+    x.add_argument("--atol", type=float, default=1e-6)
+    x.add_argument("--rtol", type=float, default=1e-5)
     x.add_argument("--execute-tests", action="store_true")
     x = p.add_parser("compare", help="Compare ID-matched prediction JSONL with explicit numeric tolerances")
     x.add_argument("--workspace", required=True)
@@ -143,6 +188,27 @@ def dispatch(a: argparse.Namespace) -> dict:
             raise ValueError("--execute-tests is required for generated code execution")
         return run_tests(wb, a.candidate, image=a.image, timeout_sec=a.timeout,
                          memory_mb=a.memory_mb, cpus=a.cpus)
+    if a.cmd == "generate-behavior":
+        if not a.execute_llm:
+            raise ValueError("--execute-llm required before sending observed behavior to a model")
+        return generate_from_observation(
+            wb, a.observation, a.plan_sha, a.cases, a.label,
+            ModelClient(a.endpoint, a.model, allow_remote=a.allow_remote),
+            max_pairs=a.max_pairs)
+    if a.cmd == "observe-api":
+        return capture_api(wb, a.cases, origin=a.origin, endpoint_path=a.path,
+                           output_pointer=a.output_pointer, allow_remote=a.allow_remote,
+                           execute=a.execute, limit=a.limit, timeout=a.timeout)
+    if a.cmd == "intervene":
+        return make_interventions(wb, a.cases, a.spec)
+    if a.cmd == "replay":
+        return replay_candidate(wb, a.candidate, a.cases, image=a.image,
+                                execute=a.execute_tests, module=a.module,
+                                function=a.function, timeout=a.timeout, memory_mb=a.memory_mb)
+    if a.cmd == "check-reconstruction":
+        return check_reconstruction(wb, a.observation, a.candidate, a.cases,
+                                    image=a.image, execute=a.execute_tests,
+                                    atol=a.atol, rtol=a.rtol)
     if a.cmd == "compare":
         return compare_outputs(wb, a.reference, a.candidate, atol=a.atol, rtol=a.rtol)
     if a.cmd == "verify":

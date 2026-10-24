@@ -51,3 +51,8 @@ Not yet implemented: reliable automatic extraction/interpretation of figures; an
 ## Design principle
 
 A passing generated unit test is evidence about that unit test, not about the original author's code or paper. An observed equality on a particular input set is not proof of general equivalence. Absence in a partial PDF/page sample is unknown, not an observed negative finding.
+
+
+## Extension: observable API reverse engineering (v0.3)
+
+The website/app case in REA motivates an explicit `observe-api` -> `intervene` -> `generate-behavior` -> `replay` -> `check-reconstruction` ladder for model APIs. Real I/O observations and case digests are linked to generated candidates and finite output comparisons; failed/missing cases remain partial. This is a stateless JSON POST boundary, not a browser scraper, HAR emulator, or means to recover historical proprietary ML training data. See [black-box workflow](BLACKBOX_WORKFLOW.md).

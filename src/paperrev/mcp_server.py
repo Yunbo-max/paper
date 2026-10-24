@@ -12,6 +12,7 @@ from typing import Any
 from .replicate import ingest_pdf, register_plan, create_candidate
 from .reproduce import candidate_manifest, compare_outputs, run_tests, verify_claims
 from .workbench import Workbench, read_json
+from .blackbox import capture_api, make_interventions, replay_candidate as run_replay, check_reconstruction as check_replay
 
 
 def build_server():
@@ -58,6 +59,39 @@ def build_server():
         """Explicitly execute untrusted candidate unit tests in a no-network Docker container."""
         return run_tests(Workbench(workspace), candidate_id, image=docker_image,
                          timeout_sec=timeout_sec, memory_mb=memory_mb)
+
+    @server.tool()
+    def observe_api(workspace: str, cases_jsonl: str, origin: str, endpoint_path: str,
+                    execute: bool = False, allow_remote: bool = False,
+                    output_pointer: str = "", limit: int = 25) -> dict[str, Any]:
+        """Capture real selected POST responses; requires explicit execution consent."""
+        return capture_api(Workbench(workspace), cases_jsonl, origin=origin,
+                           endpoint_path=endpoint_path, execute=execute,
+                           allow_remote=allow_remote, output_pointer=output_pointer,
+                           limit=limit)
+
+    @server.tool()
+    def generate_interventions(workspace: str, cases_jsonl: str, spec_json: str) -> dict[str, Any]:
+        """Generate one-input-feature contrast cases (not observed results)."""
+        return make_interventions(Workbench(workspace), cases_jsonl, spec_json)
+
+    @server.tool()
+    def replay_candidate(workspace: str, candidate_id: str, cases_jsonl: str,
+                         docker_image: str, execute: bool = False,
+                         module: str = "reproduction", function: str = "predict") -> dict[str, Any]:
+        """Replay an independent candidate in offline, bounded Docker only."""
+        return run_replay(Workbench(workspace), candidate_id, cases_jsonl,
+                          image=docker_image, execute=execute, module=module,
+                          function=function)
+
+    @server.tool()
+    def check_reconstruction(workspace: str, observation_evidence_id: str,
+                             candidate_id: str, cases_jsonl: str,
+                             docker_image: str, execute: bool = False) -> dict[str, Any]:
+        """Authenticate target capture, replay code and compare finite behavior."""
+        return check_replay(Workbench(workspace), observation_evidence_id,
+                            candidate_id, cases_jsonl, image=docker_image,
+                            execute=execute)
 
     @server.tool()
     def compare_behavior(workspace: str, reference_jsonl: str, candidate_jsonl: str,

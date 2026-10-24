@@ -1,0 +1,2 @@
+{"id":"delayed","input":{"state":"Shipment arrived after 10 days","questions":{"late":{"type":"noul","instructions":"Was it late?"}}}}
+{"id":"on-time","input":{"state":"Shipment arrived on schedule","questions":{"late":{"type":"noul","instructions":"Was it late?"}}}}
