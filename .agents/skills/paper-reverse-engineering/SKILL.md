@@ -2,10 +2,10 @@
 name: paper-reverse-engineering
 description: REA-style evidence-first investigation of incompletely released research papers, from source artifacts through independent code candidate, controlled execution, and scoped claim verification.
 metadata:
-  version: "4"
+  version: "5"
 ---
 
-# Paper Reverse Engineering (PaperRev v0.2)
+# Paper Reverse Engineering (PaperRev v0.5)
 
 Use this Skill for **paper to independent executable implementation**, especially when source/training code is not fully released. PaperRev implements an original scientific workflow inspired by REA's investigative code. The Skill is instructions only; installing it does **not** install Python, Docker, an LLM, register MCP tools, or create a runnable agent by itself.
 
@@ -75,3 +75,9 @@ Always state what was *actually executed*, with the exact artifact IDs; separate
 ## Differential reverse engineering (v0.4)
 
 Use `intervene` for exactly one-field input mutations; separately use `observe-api` for original and altered JSONL requests. Pass both observed-capture Evidence IDs and the intervention-plan Evidence ID to `analyze-interventions` / `analyze_interventions`. Source hashes, endpoint metadata and parent IDs must be verified. Incomplete outputs remain UNKNOWN; contrary observed pairs are finite witnesses. Never infer original training implementations or causal internal mechanisms from behavioral correlation alone.
+
+## Active query selection among competing implementations (v0.5)
+
+Use this stage only after at least two distinct, source-authenticated `candidate-behavior` records exist for the same frozen input pool. `paperrev active-select` / `select_active_probes` checks Docker replay source hashes and outputs before selecting cost-aware, parent-diverse inputs without querying the model. Query the original API only with a separate authorized `observe-api` call, then use `active-evaluate` / `evaluate_active_probes` to record finite compatibility, concrete counterexample IDs and incomplete coverage.
+
+The method is a practical Query-by-Committee baseline, not a new theorem. All candidates may agree and still be wrong; require independent controls and avoid training-history claims. Full protocol: docs/ACTIVE_PROBING.md.

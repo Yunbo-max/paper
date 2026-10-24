@@ -12,6 +12,7 @@ from .replicate import (ModelClient, ingest_pdf, propose_plan, register_plan,
 from .reproduce import compare_outputs, run_tests, verify_claims
 from .blackbox import capture_api, make_interventions, replay_candidate, check_reconstruction, generate_from_observation
 from .contrast import analyze_contrasts
+from .active import select_probes, evaluate_selection
 
 
 def parser() -> argparse.ArgumentParser:
@@ -86,6 +87,21 @@ def parser() -> argparse.ArgumentParser:
     x.add_argument("--cases", required=True, help="Frozen original input JSONL")
     x.add_argument("--probe-cases", required=True, help="Generated input JSONL")
     x.add_argument("--spec", required=True, help="Changes and finite relation checks")
+    x = p.add_parser("active-select", help="Choose diagnostic black-box inputs from authenticated candidate disagreement")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--pool", required=True, help="Frozen JSONL input pool")
+    x.add_argument("--candidate-run", action="append", default=[], help="Candidate-behavior Evidence ID (repeat 2..16)")
+    x.add_argument("--budget", type=int, default=5)
+    x.add_argument("--min-distance", type=float, default=0.05)
+    x.add_argument("--numeric-scale", type=float, default=1.0)
+    x.add_argument("--max-per-parent", type=int, default=1)
+    x = p.add_parser("active-evaluate", help="Compare selected candidates to real observed target outputs")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--pool", required=True)
+    x.add_argument("--selection", required=True, help="Selection Evidence ID from active-select")
+    x.add_argument("--observation", required=True, help="Real API capture Evidence ID for selected inputs")
+    x.add_argument("--atol", type=float, default=1e-6)
+    x.add_argument("--rtol", type=float, default=1e-5)
     x = p.add_parser("replay", help="Replay code on frozen API inputs in no-network Docker")
     x.add_argument("--workspace", required=True)
     x.add_argument("--cases", required=True)
@@ -216,6 +232,13 @@ def dispatch(a: argparse.Namespace) -> dict:
             intervention_evidence_id=a.probes,
             intervention_plan_evidence_id=a.plan_evidence,
             base_cases_path=a.cases, probe_cases_path=a.probe_cases, spec_path=a.spec)
+    if a.cmd == "active-select":
+        return select_probes(wb, a.pool, a.candidate_run, budget=a.budget,
+                             min_distance=a.min_distance, numeric_scale=a.numeric_scale,
+                             max_per_parent=a.max_per_parent)
+    if a.cmd == "active-evaluate":
+        return evaluate_selection(wb, pool_file=a.pool, selection_evidence_id=a.selection,
+                                  observation_evidence_id=a.observation, atol=a.atol, rtol=a.rtol)
     if a.cmd == "replay":
         return replay_candidate(wb, a.candidate, a.cases, image=a.image,
                                 execute=a.execute_tests, module=a.module,
