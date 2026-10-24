@@ -11,6 +11,7 @@ from .replicate import (ModelClient, ingest_pdf, propose_plan, register_plan,
                         create_candidate, generate_candidate)
 from .reproduce import compare_outputs, run_tests, verify_claims
 from .blackbox import capture_api, make_interventions, replay_candidate, check_reconstruction, generate_from_observation
+from .contrast import analyze_contrasts
 
 
 def parser() -> argparse.ArgumentParser:
@@ -77,6 +78,14 @@ def parser() -> argparse.ArgumentParser:
     x.add_argument("--workspace", required=True)
     x.add_argument("--cases", required=True)
     x.add_argument("--spec", required=True)
+    x = p.add_parser("analyze-interventions", help="Evaluate finite behavioral relations from two authenticated API captures")
+    x.add_argument("--workspace", required=True)
+    x.add_argument("--baseline", required=True, help="Evidence ID of baseline capture")
+    x.add_argument("--probes", required=True, help="Evidence ID of intervened capture")
+    x.add_argument("--plan-evidence", required=True, help="Evidence ID returned by intervene")
+    x.add_argument("--cases", required=True, help="Frozen original input JSONL")
+    x.add_argument("--probe-cases", required=True, help="Generated input JSONL")
+    x.add_argument("--spec", required=True, help="Changes and finite relation checks")
     x = p.add_parser("replay", help="Replay code on frozen API inputs in no-network Docker")
     x.add_argument("--workspace", required=True)
     x.add_argument("--cases", required=True)
@@ -201,6 +210,12 @@ def dispatch(a: argparse.Namespace) -> dict:
                            execute=a.execute, limit=a.limit, timeout=a.timeout)
     if a.cmd == "intervene":
         return make_interventions(wb, a.cases, a.spec)
+    if a.cmd == "analyze-interventions":
+        return analyze_contrasts(
+            wb, baseline_evidence_id=a.baseline,
+            intervention_evidence_id=a.probes,
+            intervention_plan_evidence_id=a.plan_evidence,
+            base_cases_path=a.cases, probe_cases_path=a.probe_cases, spec_path=a.spec)
     if a.cmd == "replay":
         return replay_candidate(wb, a.candidate, a.cases, image=a.image,
                                 execute=a.execute_tests, module=a.module,

@@ -2,7 +2,7 @@
 name: paper-reverse-engineering
 description: REA-style evidence-first investigation of incompletely released research papers, from source artifacts through independent code candidate, controlled execution, and scoped claim verification.
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # Paper Reverse Engineering (PaperRev v0.2)
@@ -71,3 +71,7 @@ PDF inspection is local. LLM calls require `--execute-llm`; remote HTTPS require
 StartLux v1.1 has public model weights, inference code and a technical report. The first branch of study inspects official inference behavior and checkpoint configs; the second can attempt an **independent** RLCD² training implementation only after explicit mathematical specification and evaluations exist. The old `paperrev-startlux` adapter remains available for paired always-think Gate experiments and is not itself a training replication.
 
 Always state what was *actually executed*, with the exact artifact IDs; separately list inferred hypotheses, unknowns and incomplete proof obligations.
+
+## Differential reverse engineering (v0.4)
+
+Use `intervene` for exactly one-field input mutations; separately use `observe-api` for original and altered JSONL requests. Pass both observed-capture Evidence IDs and the intervention-plan Evidence ID to `analyze-interventions` / `analyze_interventions`. Source hashes, endpoint metadata and parent IDs must be verified. Incomplete outputs remain UNKNOWN; contrary observed pairs are finite witnesses. Never infer original training implementations or causal internal mechanisms from behavioral correlation alone.
