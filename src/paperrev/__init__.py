@@ -1,3 +1,3 @@
-"""Evidence-first reconstruction of ML papers, not recovery of unavailable original source."""
+"""PaperRev: evidence-first independent reconstruction of partially released papers."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
