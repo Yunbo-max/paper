@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paperrev-lab"
+version = "0.1.0"
+description = "Evidence-first paper reconstruction and model behavior studies"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Paper Reverse Engineering contributors"}]
+dependencies = []
+
+[project.optional-dependencies]
+pdf = ["PyMuPDF>=1.23"]
+
+[project.scripts]
+paperrev = "paperrev.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

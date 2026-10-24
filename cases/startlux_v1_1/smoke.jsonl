@@ -1,0 +1,3 @@
+{"id":"smoke-arithmetic","state":"A receipt totals £18. The customer pays £20.","questions":{"change":{"type":"choice","instructions":"What change should be given?","criteria":{"£2":"Two pounds","£3":"Three pounds","£4":"Four pounds"}}},"gold":{"change":"£2"}}
+{"id":"smoke-logic","state":"Every red box is sealed. Box A is red.","questions":{"sealed":{"type":"noul","instructions":"Is Box A sealed?"}},"gold":{"sealed":true}}
+{"id":"smoke-comparison","state":"Three delays: order A=2 days, B=7 days, C=4 days.","questions":{"longest":{"type":"choice","instructions":"Which order has the longest delay?","criteria":{"A":"Order A","B":"Order B","C":"Order C"}}},"gold":{"longest":"B"}}
